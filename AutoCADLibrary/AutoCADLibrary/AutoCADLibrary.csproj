@@ -52,6 +52,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BlockUtil.cs" />
+    <Compile Include="ColorUtil.cs" />
+    <Compile Include="GeometryUtil.cs" />
     <Compile Include="LayerUtil.cs" />
     <Compile Include="PolylineUtil.cs" />
     <Compile Include="PromptUtil.cs" />
