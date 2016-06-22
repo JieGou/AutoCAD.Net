@@ -3,17 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
+using MsgBox = System.Windows.Forms.MessageBox;
 
 using Autodesk.AutoCAD.ApplicationServices;
+using AcadApp = Autodesk.AutoCAD.ApplicationServices.Application;
 using Autodesk.AutoCAD.DatabaseServices;
 using Autodesk.AutoCAD.EditorInput;
 using Autodesk.AutoCAD.Geometry;
+using Autodesk.AutoCAD.Runtime;
 using AcColor = Autodesk.AutoCAD.Colors;
 using AcWindow = Autodesk.AutoCAD.Windows;
 
 namespace AutoCADLibrary
 {
-    public class PolylineUtil
+    public class Polyline
     {
         /// <summary>
         /// Coordinates의 좌표로 LW폴리선을 만들어줍니다.
@@ -31,10 +35,10 @@ namespace AutoCADLibrary
 
                 Polyline oPoly = new Polyline();
 
-                for (int i = 0; i < Coordinates.Length; i++) oPoly.AddVertexAt(i, GeometryUtil.ToPoint2d(Coordinates[i]), 0, 0, 0);
+                for (int i = 0; i < Coordinates.Length; i++) oPoly.AddVertexAt(i, Geometry.ToPoint2d(Coordinates[i]), 0, 0, 0);
 
                 oPoly.Closed = isClosed;
-                oPoly.LayerId = LayerUtil.AddLayer(LayerName);
+                oPoly.LayerId = Layer.AddLayer(LayerName);
                 if (AcadColor != null) oPoly.Color = AcadColor;
                 
                 return oPoly;
