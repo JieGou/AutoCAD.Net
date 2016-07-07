@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // 어셈블리와 관련된 정보를 수정하려면
 // 이 특성 값을 변경하십시오.
 [assembly: AssemblyTitle("AutoCADLibrary")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("AutoCAD .Net 함수 라이브러리입니다.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("성수민")]
 [assembly: AssemblyProduct("AutoCADLibrary")]
-[assembly: AssemblyCopyright("Copyright ©  2016")]
+[assembly: AssemblyCopyright("Copyright © 성수민 2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

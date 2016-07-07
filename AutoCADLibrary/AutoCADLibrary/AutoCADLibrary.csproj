@@ -52,15 +52,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Block.cs" />
-    <Compile Include="Color.cs" />
-    <Compile Include="ExtendData.cs" />
-    <Compile Include="Geometry.cs" />
-    <Compile Include="Layer.cs" />
-    <Compile Include="Polyline.cs" />
-    <Compile Include="Prompt.cs" />
+    <Compile Include="BlockUtil.cs" />
+    <Compile Include="ColorUtil.cs" />
+    <Compile Include="XDataUtil.cs" />
+    <Compile Include="GeometryUtil.cs" />
+    <Compile Include="LayerUtil.cs" />
+    <Compile Include="PolylineUtil.cs" />
+    <Compile Include="PromptUtil.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Text.cs" />
+    <Compile Include="TextUtil.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

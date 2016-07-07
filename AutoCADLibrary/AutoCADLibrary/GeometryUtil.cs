@@ -20,7 +20,7 @@ namespace AutoCADLibrary
     /// <summary>
     /// 점, 벡터, 각도 등에 관련된 명령을 가지고 있는 클래스입니다.
     /// </summary>
-    public class Geometry
+    public class GeometryUtil
     {
         /// <summary>
         /// Point3d 좌표를 Point2d로 변환합니다.
@@ -40,6 +40,40 @@ namespace AutoCADLibrary
         public static Point3d ToPoint3d(Point2d Point)
         {
             return new Point3d(Point.X, Point.Y, 0);
+        }
+
+        /// <summary>
+        /// 객체의 최대(오른쪽위), 최소(왼쪽아래) 점을 가져옵니다.
+        /// </summary>
+        /// <param name="EntityId">점을 가져올 객체의 ObjectId 입니다.</param>
+        /// <returns></returns>
+        public static Point3dCollection GetMinMaxPoint(ObjectId EntityId)
+        {
+            Document doc = Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument;
+            Database db = doc.Database;
+            Editor ed = doc.Editor;
+            Point3dCollection vPnts = new Point3dCollection();
+
+            try
+            {
+                using (doc.LockDocument())
+                {
+                    using (Transaction tr = db.TransactionManager.StartTransaction())
+                    {
+                        Entity oEnt = tr.GetObject(EntityId, OpenMode.ForRead) as Entity;
+
+                        vPnts.Add(oEnt.GeometricExtents.MinPoint);
+                        vPnts.Add(oEnt.GeometricExtents.MaxPoint);
+
+                        return vPnts;
+                    }
+                }
+            }
+            catch(System.Exception ex)
+            {
+                System.Diagnostics.Debug.Print(string.Format("************에러발생************\n위치 : CreateRegApp\n메시지 : {0}", ex.Message));
+                return null;
+            }
         }
     }
 }

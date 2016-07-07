@@ -17,7 +17,7 @@ using AcWindow = Autodesk.AutoCAD.Windows;
 
 namespace AutoCADLibrary
 {
-    public class Block
+    public class BlockUtil
     {
     }
 }

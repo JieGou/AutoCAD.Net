@@ -21,7 +21,7 @@ namespace AutoCADLibrary
     /// 객체 선택, 프롬프트 창에 대한 명령들을 가지고 있는 클래스입니다.
     /// Coded By KevinSung
     /// </summary>
-    public class Prompt
+    public class PromptUtil
     {
         public static readonly Point3d NullPoint3d = new Point3d(-65536.65536, -65536.65536, -65536.65536);
 
@@ -35,7 +35,7 @@ namespace AutoCADLibrary
         /// <returns>선택한 객체의 ObjectId를 리턴하며, ESC 등의 취소를 받았을 경우, ObjectId.Null 값을 리턴합니다.</returns>
         public static ObjectId GetEntity(string message = "객체 선택", params Type[] Filter)
         {
-            Document doc = Application.DocumentManager.MdiActiveDocument;
+            Document doc = AcadApp.DocumentManager.MdiActiveDocument;
             Database db = doc.Database;
             Editor ed = doc.Editor;
 
@@ -46,7 +46,7 @@ namespace AutoCADLibrary
             PromptEntityResult per = ed.GetEntity(peo);
 
             if (per.Status != PromptStatus.OK) return ObjectId.Null;
-
+            
             return per.ObjectId;
         }
 
@@ -57,7 +57,7 @@ namespace AutoCADLibrary
         /// <returns>지정한 점의 Point3d 좌표</returns>
         public static Point3d GetPoint(string message = "점 선택")
         {
-            Document doc = Application.DocumentManager.MdiActiveDocument;
+            Document doc = AcadApp.DocumentManager.MdiActiveDocument;
             Database db = doc.Database;
             Editor ed = doc.Editor;
 
@@ -77,7 +77,7 @@ namespace AutoCADLibrary
         /// <returns>지정한 점의 Point3d 좌표</returns>
         public static Point3d GetPoint(Point3d BasePoint, string message = "점 선택")
         {
-            Document doc = Application.DocumentManager.MdiActiveDocument;
+            Document doc = AcadApp.DocumentManager.MdiActiveDocument;
             Database db = doc.Database;
             Editor ed = doc.Editor;
 

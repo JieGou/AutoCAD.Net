@@ -20,34 +20,21 @@ namespace AutoCADLibrary
     /// <summary>
     /// 색깔에 대한 명령을 가지고 있는 클래스입니다.
     /// </summary>
-    public class Color
+    public class ColorUtil
     {
         /// <summary>
         /// 색깔을 선택하는 창을 띄워 사용자가 선택한 색을 가져옵니다.
         /// </summary>
-        /// <param name="IncludeByLayerByBlock">ByLayer, ByBlock에 대한 선택이 유효한지를 결정합니다.</param>
+        /// <param name="ShowByLayerByBlock">ByLayer, ByBlock에 대한 선택이 유효한지를 결정합니다.</param>
         /// <returns>Autodesk.AutoCAD.Colors.Color가 리턴됩니다.</returns>
-        public AcColor.Color GetColorByDialog(bool IncludeByLayerByBlock = true)
+        public AcColor.Color GetColorByDialog(bool ShowByLayerByBlock = true)
         {
             AcWindow.ColorDialog dlgColor = new AcWindow.ColorDialog();
-            dlgColor.IncludeByBlockByLayer = IncludeByLayerByBlock;
-            if (dlgColor.ShowDialog() != DialogResult.OK) return null;
-            else return dlgColor.Color;
-        }
+            dlgColor.IncludeByBlockByLayer = ShowByLayerByBlock;
 
-        [Autodesk.AutoCAD.Runtime.CommandMethod("TESTCOLOR")]
-        public void Test()
-        {
-            AcColor.Color colObject = GetColorByDialog(false);
+            if (dlgColor.ShowDialog() == DialogResult.OK) return dlgColor.Color;
 
-            if (colObject == null || colObject.IsNone)
-            {
-                MsgBox.Show("색상 선택이 되지 않았습니다.");
-            }
-            else
-            {
-                MsgBox.Show(colObject.ToString());
-            }
+            return null;
         }
     }
 }

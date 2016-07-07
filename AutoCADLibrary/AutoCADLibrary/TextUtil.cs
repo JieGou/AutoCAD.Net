@@ -17,7 +17,10 @@ using AcWindow = Autodesk.AutoCAD.Windows;
 
 namespace AutoCADLibrary
 {
-    public class Text
+    /// <summary>
+    /// MText, DBText에 대한 명령이 들어있는 클래스입니다.
+    /// </summary>
+    public class TextUtil
     {
     }
 }

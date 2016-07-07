@@ -20,7 +20,7 @@ namespace AutoCADLibrary
     /// <summary>
     /// 레이어에 대한 명령들을 가지고 있는 클래스 입니다.
     /// </summary>
-    public class Layer
+    public class LayerUtil
     {
         /// <summary>
         /// 레이어를 추가하는 메소드입니다. 레이어가 존재한다면, 그 레이어의 색깔만 바꿔줍니다.
@@ -30,7 +30,7 @@ namespace AutoCADLibrary
         /// <returns>추가한 레이어의 ObjectId를 리턴합니다.</returns>
         public static ObjectId AddLayer(string LayerName, AcColor.Color AcadColor = null)
         {
-            Document doc = Application.DocumentManager.MdiActiveDocument;
+            Document doc = AcadApp.DocumentManager.MdiActiveDocument;
             Database db = doc.Database;
             ObjectId oLayerId = ObjectId.Null;
 

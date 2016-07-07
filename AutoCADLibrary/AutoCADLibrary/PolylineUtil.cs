@@ -17,7 +17,7 @@ using AcWindow = Autodesk.AutoCAD.Windows;
 
 namespace AutoCADLibrary
 {
-    public class Polyline
+    public class PolylineUtil
     {
         /// <summary>
         /// Coordinates의 좌표로 LW폴리선을 만들어줍니다.
@@ -35,10 +35,10 @@ namespace AutoCADLibrary
 
                 Polyline oPoly = new Polyline();
 
-                for (int i = 0; i < Coordinates.Length; i++) oPoly.AddVertexAt(i, Geometry.ToPoint2d(Coordinates[i]), 0, 0, 0);
+                for (int i = 0; i < Coordinates.Length; i++) oPoly.AddVertexAt(i, GeometryUtil.ToPoint2d(Coordinates[i]), 0, 0, 0);
 
                 oPoly.Closed = isClosed;
-                oPoly.LayerId = Layer.AddLayer(LayerName);
+                oPoly.LayerId = LayerUtil.AddLayer(LayerName);
                 if (AcadColor != null) oPoly.Color = AcadColor;
                 
                 return oPoly;
