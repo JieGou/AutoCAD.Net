@@ -22,145 +22,111 @@ namespace AutoCADLibrary
     /// </summary>
     public class XDataUtil
     {
-        private static string ApplicationName = "KevinSungApplication";
-
-        public static void SetXData(Entity entity, params object[] Datas)
-        {
-
-            try
-            {
-                CreateRegApp(ApplicationName);
-
-                ResultBuffer oXData = new ResultBuffer();
-
-                oXData.Add(new TypedValue((int)DxfCode.ExtendedDataRegAppName, ApplicationName));
-
-                foreach (object Data in Datas)
-                {
-                    oXData.Add(new TypedValue((int)DxfCode.ExtendedDataAsciiString, Data.ToString()));
-                }
-                entity.XData = oXData;
-            }
-            catch(System.Exception ex)
-            {
-
-            }
-        }
-
-        public static object[] GetXData(Entity entity)
-        {
-
-            try
-            {
-                List<object> lstDatas = new List<object>();
-                ResultBuffer oXData = entity.XData;
-
-                foreach (TypedValue oData in oXData) lstDatas.Add(oData.Value);
-
-                return lstDatas.ToArray();
-            }
-            catch
-            {
-                return null;
-            }
-        }
-
-        private static void CreateRegApp(string AppName)
+        public static void SetXRecord(ObjectId id, string key, ResultBuffer resbuf)
         {
             Document doc = AcadApp.DocumentManager.MdiActiveDocument;
             Database db = doc.Database;
-
-            try
-            {
-                using (doc.LockDocument())
-                {
-                    using (Transaction tr = db.TransactionManager.StartTransaction())
-                    {
-                        RegAppTable oRegApps = tr.GetObject(db.RegAppTableId, OpenMode.ForWrite) as RegAppTable;
-
-                        if (!oRegApps.Has(AppName))
-                        {
-                            RegAppTableRecord oRegApp = new RegAppTableRecord();
-                            oRegApp.Name = AppName;
-                            oRegApps.Add(oRegApp);
-                            tr.AddNewlyCreatedDBObject(oRegApp, true);
-                        }
-
-                        tr.Commit();
-                    }
-                }
-            }
-            catch(System.Exception ex)
-            {
-                System.Diagnostics.Debug.Print(string.Format("************에러발생************\n위치 : CreateRegApp\n메시지 : {0}", ex.Message));
-            }
-        }
-
-        public static void RemoveXData(Entity entity, string tag)
-        {
-            try
-            {
-                List<TypedValue> lstDatas = null;
-                ResultBuffer oXData = entity.XData;
-                lstDatas = new List<TypedValue>(oXData.AsArray());
-
-                foreach (TypedValue oData in lstDatas)
-                {
-                    if (oData.Value.ToString() == tag)
-                    {
-                        lstDatas.Remove(oData);
-                        break;
-                    }
-                }
-
-                entity.XData = new ResultBuffer(lstDatas.ToArray());
-            }
-            catch
-            {
-
-            }
-        }
-
-        [CommandMethod("test1")]
-        public void test()
-        {
-            Document doc = AcadApp.DocumentManager.MdiActiveDocument;
-            Database db = doc.Database;
-            Editor ed = doc.Editor;
-
-            ObjectId oEntId = PromptUtil.GetEntity("soomin");
-
             using (Transaction tr = db.TransactionManager.StartTransaction())
             {
-                Entity oEnt = tr.GetObject(oEntId, OpenMode.ForWrite) as Entity;
-
-                SetXData(oEnt, "TESTAPP[0]", "Kevin");
-
-                MessageBox.Show(GetXData(oEnt)[0].ToString());
-
+                Entity ent = tr.GetObject(id, OpenMode.ForRead) as Entity;
+                if (ent != null)
+                {
+                    ent.UpgradeOpen();
+                    ent.CreateExtensionDictionary();
+                    DBDictionary xDict = (DBDictionary)tr.GetObject(ent.ExtensionDictionary, OpenMode.ForWrite);
+                    Xrecord xRec = new Xrecord();
+                    xRec.Data = resbuf;
+                    xDict.SetAt(key, xRec);
+                    tr.AddNewlyCreatedDBObject(xRec, true);
+                }
                 tr.Commit();
             }
         }
 
-        [CommandMethod("test2")]
-        public void test2()
+        public static ResultBuffer GetXRecord(ObjectId id, string key)
         {
             Document doc = AcadApp.DocumentManager.MdiActiveDocument;
             Database db = doc.Database;
-            Editor ed = doc.Editor;
-
-            ObjectId oEntId = PromptUtil.GetEntity("soomin");
-
+            ResultBuffer result = new ResultBuffer();
             using (Transaction tr = db.TransactionManager.StartTransaction())
             {
-                Entity oEnt = tr.GetObject(oEntId, OpenMode.ForWrite) as Entity;
-
-                RemoveXData(oEnt, "TESTAPP[0]");
-
-                MessageBox.Show(GetXData(oEnt)[0].ToString());
-
-                tr.Commit();
+                Xrecord xRec = new Xrecord();
+                Entity ent = tr.GetObject(id, OpenMode.ForRead, false) as Entity;
+                if (ent != null)
+                {
+                    try
+                    {
+                        DBDictionary xDict = (DBDictionary)tr.GetObject(ent.ExtensionDictionary, OpenMode.ForRead, false);
+                        xRec = (Xrecord)tr.GetObject(xDict.GetAt(key), OpenMode.ForRead, false);
+                        return xRec.Data;
+                    }
+                    catch
+                    {
+                        return null;
+                    }
+                }
+                else
+                    return null;
             }
         }
+
+        //private static string ApplicationName = "KevinSungApplication";
+
+        //public static void AddXData(Entity entity, string applicatioinName, ResultBuffer data)
+        //{
+        //    Document doc = AcadApp.DocumentManager.MdiActiveDocument;
+        //    Database db = doc.Database;
+        //    Editor ed = doc.Editor;
+
+        //    using (doc.LockDocument())
+        //    {
+        //        using (Transaction tr = DatabaseUtil.GetTransaction(db))
+        //        {
+
+        //        }
+        //    }
+        //}
+
+        //[CommandMethod("test1")]
+        //public void test()
+        //{
+        //    Document doc = AcadApp.DocumentManager.MdiActiveDocument;
+        //    Database db = doc.Database;
+        //    Editor ed = doc.Editor;
+
+        //    ObjectId oEntId = PromptUtil.GetEntity("soomin");
+
+        //    using (Transaction tr = db.TransactionManager.StartTransaction())
+        //    {
+        //        Entity oEnt = tr.GetObject(oEntId, OpenMode.ForWrite) as Entity;
+
+        //        //SetXData(oEnt, "TESTAPP[0]", "Kevin");
+
+        //        //MessageBox.Show(GetXData(oEnt)[0].ToString());
+
+        //        tr.Commit();
+        //    }
+        //}
+
+        //[CommandMethod("test2")]
+        //public void test2()
+        //{
+        //    Document doc = AcadApp.DocumentManager.MdiActiveDocument;
+        //    Database db = doc.Database;
+        //    Editor ed = doc.Editor;
+
+        //    ObjectId oEntId = PromptUtil.GetEntity("soomin");
+
+        //    using (Transaction tr = db.TransactionManager.StartTransaction())
+        //    {
+        //        Entity oEnt = tr.GetObject(oEntId, OpenMode.ForWrite) as Entity;
+
+        //        //RemoveXData(oEnt, "TESTAPP[0]");
+
+        //        //MessageBox.Show(GetXData(oEnt)[0].ToString());
+
+        //        tr.Commit();
+        //    }
+        //}
     }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Runtime.InteropServices;
 using MsgBox = System.Windows.Forms.MessageBox;
 
 using Autodesk.AutoCAD.ApplicationServices;
@@ -35,6 +36,8 @@ namespace AutoCADLibrary
         /// <returns>선택한 객체의 ObjectId를 리턴하며, ESC 등의 취소를 받았을 경우, ObjectId.Null 값을 리턴합니다.</returns>
         public static ObjectId GetEntity(string message = "객체 선택", params Type[] Filter)
         {
+            ActivateApplication();
+
             Document doc = AcadApp.DocumentManager.MdiActiveDocument;
             Database db = doc.Database;
             Editor ed = doc.Editor;
@@ -51,12 +54,65 @@ namespace AutoCADLibrary
         }
 
         /// <summary>
+        /// pt1과 pt2를 기준으로 사각형 내의 객체를 가져오는 메소드입니다.
+        /// </summary>
+        /// <param name="pt1">첫번째점</param>
+        /// <param name="pt2">두번째점</param>
+        /// <param name="Filter">선택이 가능하게 할 조건</param>
+        /// <returns></returns>
+        public static ObjectId[] GetEntitiesByWindow(Point3d pt1, Point3d pt2, params TypedValue[] Filter)
+        {
+            ActivateApplication();
+
+            Document doc = AcadApp.DocumentManager.MdiActiveDocument;
+            Database db = doc.Database;
+            Editor ed = doc.Editor;
+
+            SelectionFilter oSF = new SelectionFilter(Filter);
+
+            PromptSelectionResult psr = ed.SelectCrossingWindow(pt1, pt2, oSF);
+
+            if (psr.Status != PromptStatus.OK) return new ObjectId[] { };
+
+            return psr.Value.GetObjectIds();
+        }
+
+        /// <summary>
+        /// 사용자가 선택한 여러 객체들을 가져오는 메소드입니다.
+        /// </summary>
+        /// <param name="message">선택 전, 프롬프트에 표시할 메시지</param>
+        /// <param name="Filter">선택이 가능하게 할 조건</param>
+        /// <returns></returns>
+        public static ObjectId[] GetEntities(string message = "객체 선택", params TypedValue[] Filter)
+        {
+            ActivateApplication();
+
+            Document doc = AcadApp.DocumentManager.MdiActiveDocument;
+            Database db = doc.Database;
+            Editor ed = doc.Editor;
+
+            PromptSelectionOptions pso = new PromptSelectionOptions();
+            pso.MessageForAdding = "\n" + message;
+            pso.MessageForRemoval = "\n" + message;
+
+            SelectionFilter oSF = new SelectionFilter(Filter);
+
+            PromptSelectionResult psr = ed.GetSelection(pso, oSF);
+
+            if (psr.Status != PromptStatus.OK) return new ObjectId[] { };
+
+            return psr.Value.GetObjectIds();
+        }
+
+        /// <summary>
         /// 사용자가 선택한 점을 가져오는 메소드입니다.
         /// </summary>
         /// <param name="message">선택 전, 프롬프트에 표시할 메시지</param>
         /// <returns>지정한 점의 Point3d 좌표</returns>
         public static Point3d GetPoint(string message = "점 선택")
         {
+            ActivateApplication();
+
             Document doc = AcadApp.DocumentManager.MdiActiveDocument;
             Database db = doc.Database;
             Editor ed = doc.Editor;
@@ -77,6 +133,8 @@ namespace AutoCADLibrary
         /// <returns>지정한 점의 Point3d 좌표</returns>
         public static Point3d GetPoint(Point3d BasePoint, string message = "점 선택")
         {
+            ActivateApplication();
+
             Document doc = AcadApp.DocumentManager.MdiActiveDocument;
             Database db = doc.Database;
             Editor ed = doc.Editor;
@@ -92,6 +150,41 @@ namespace AutoCADLibrary
             if (PrmptPntRst.Status != PromptStatus.OK) return NullPoint3d;
 
             return PrmptPntRst.Value;
+        }
+
+        /// <summary>
+        /// 사용자로부터 문자열을 입력받습니다.
+        /// </summary>
+        /// <param name="message">입력 전, 프롬프트에 표시할 메시지</param>
+        /// <returns></returns>
+        public static string GetString(string message = "입력", bool allowSpace = false, string defaultString = "")
+        {
+            ActivateApplication();
+
+            Document doc = AcadApp.DocumentManager.MdiActiveDocument;
+            Database db = doc.Database;
+            Editor ed = doc.Editor;
+
+            PromptStringOptions PrmptStrOpt = new PromptStringOptions("\n" + message);
+            PrmptStrOpt.DefaultValue = defaultString;
+            PrmptStrOpt.AllowSpaces = allowSpace;
+
+            PromptResult PrmptRst = ed.GetString(PrmptStrOpt);
+
+            if (PrmptRst.Status != PromptStatus.OK) return "";
+
+            return PrmptRst.StringResult;
+        }
+
+        [DllImport("user32.dll")]
+        private static extern int SetActiveWindow(int hwnd);
+
+        /// <summary>
+        /// AutoCAD 창을 활성화시킵니다.
+        /// </summary>
+        public static void ActivateApplication()
+        {
+            SetActiveWindow(AcadApp.MainWindow.Handle.ToInt32());
         }
     }
 }

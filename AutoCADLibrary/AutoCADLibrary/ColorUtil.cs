@@ -27,7 +27,7 @@ namespace AutoCADLibrary
         /// </summary>
         /// <param name="ShowByLayerByBlock">ByLayer, ByBlock에 대한 선택이 유효한지를 결정합니다.</param>
         /// <returns>Autodesk.AutoCAD.Colors.Color가 리턴됩니다.</returns>
-        public AcColor.Color GetColorByDialog(bool ShowByLayerByBlock = true)
+        public static AcColor.Color GetColorByDialog(bool ShowByLayerByBlock = true)
         {
             AcWindow.ColorDialog dlgColor = new AcWindow.ColorDialog();
             dlgColor.IncludeByBlockByLayer = ShowByLayerByBlock;
@@ -35,6 +35,16 @@ namespace AutoCADLibrary
             if (dlgColor.ShowDialog() == DialogResult.OK) return dlgColor.Color;
 
             return null;
+        }
+
+        /// <summary>
+        /// 인덱스에 따른 색깔을 나타냅니다.
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        public static AcColor.Color GetColorByIndex(short index)
+        {
+            return AcColor.Color.FromColorIndex(AcColor.ColorMethod.ByAci, index);
         }
     }
 }

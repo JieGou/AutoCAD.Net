@@ -72,5 +72,102 @@ namespace AutoCADLibrary
 
             return oLayerId;
         }
+
+        /// <summary>
+        /// 레이어를 잠그거나, 풉니다.
+        /// </summary>
+        /// <param name="LayerName">작업할 레이어 이름입니다.</param>
+        /// <param name="Lock">잠금여부</param>
+        /// <returns>레이어의 ObjectId를 리턴합니다.</returns>
+        public static ObjectId LockLayer(string LayerName, bool Lock)
+        {
+            Document doc = AcadApp.DocumentManager.MdiActiveDocument;
+            Database db = doc.Database;
+            ObjectId oLayerId = ObjectId.Null;
+
+            try
+            {
+                using (doc.LockDocument())
+                {
+                    using (Transaction tr = db.TransactionManager.StartTransaction())
+                    {
+                        LayerTable oLayers = tr.GetObject(db.LayerTableId, OpenMode.ForWrite) as LayerTable;
+                        LayerTableRecord oLayer = null;
+
+                        if (oLayers.Has(LayerName)) // 가지고 있다면 속성을 변경해준다.
+                        {
+                            oLayer = tr.GetObject(oLayers[LayerName], OpenMode.ForWrite) as LayerTableRecord;
+                            oLayer.IsLocked = Lock;
+                        }
+                        else
+                        {
+                            oLayer = new LayerTableRecord();
+                            oLayer.Name = LayerName;
+                            oLayer.IsLocked = Lock;
+
+                            oLayers.Add(oLayer);
+                            tr.AddNewlyCreatedDBObject(oLayer, true);
+                        }
+
+                        oLayerId = oLayer.Id;
+
+                        tr.Commit();
+                    }
+                }
+            }
+            catch (System.Exception ex)
+            {
+                System.Diagnostics.Debug.Print(string.Format("************에러발생************\n위치 : AddLayer\n메시지 : {0}", ex.Message));
+                return ObjectId.Null;
+            }
+
+            return oLayerId;
+        }
+
+        /// <summary>
+        /// 레이어의 표시 여부를 바꿉니다.
+        /// </summary>
+        /// <param name="LayerName">작업할 레이어의 이름입니다.</param>
+        /// <param name="onOff">레이어를 표시할지 표시하지 않을지 입니다.(true = 표시)</param>
+        /// <returns>레이어의 ObjectId를 리턴합니다.</returns>
+        public static ObjectId OnOffLayer(string LayerName, bool onOff)
+        {
+            Document doc = AcadApp.DocumentManager.MdiActiveDocument;
+            Database db = doc.Database;
+            ObjectId oLayerId = ObjectId.Null;
+
+            try
+            {
+                using (doc.LockDocument())
+                {
+                    using (Transaction tr = db.TransactionManager.StartTransaction())
+                    {
+                        LayerTable oLayers = tr.GetObject(db.LayerTableId, OpenMode.ForWrite) as LayerTable;
+                        LayerTableRecord oLayer = null;
+
+                        if (oLayers.Has(LayerName)) // 가지고 있다면 속성을 변경해준다.
+                        {
+                            oLayer = tr.GetObject(oLayers[LayerName], OpenMode.ForWrite) as LayerTableRecord;
+                            oLayer.IsOff = !onOff;
+                        }
+                        else
+                        {
+                            return ObjectId.Null;
+                        }
+
+                        oLayerId = oLayer.Id;
+
+                        tr.Commit();
+                    }
+                }
+            }
+            catch (System.Exception ex)
+            {
+                System.Diagnostics.Debug.Print(string.Format("************에러발생************\n위치 : AddLayer\n메시지 : {0}", ex.Message));
+                return ObjectId.Null;
+            }
+
+            return oLayerId;
+        }
     }
 }

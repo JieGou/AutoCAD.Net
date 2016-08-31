@@ -22,5 +22,24 @@ namespace AutoCADLibrary
     /// </summary>
     public class TextUtil
     {
+        public static DBText CreateDBText(string textString, double textHeight, AttachmentPoint textAttachPoint, string layerName, ObjectId textStyleId)
+        {
+            try
+            {
+                DBText oText = new DBText();
+                oText.TextStyleId = textStyleId;
+                oText.Height = textHeight;
+                oText.TextString = textString;
+                oText.Layer = layerName;
+                oText.Justify = textAttachPoint;
+
+                return oText;
+            }
+            catch (System.Exception ex)
+            {
+                System.Diagnostics.Debug.Print(string.Format("************에러발생************\n위치 : CreateDBText\n메시지 : {0}", ex.Message));
+                return null;
+            }
+        }
     }
 }

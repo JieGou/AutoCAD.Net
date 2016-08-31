@@ -49,5 +49,36 @@ namespace AutoCADLibrary
                 return null;
             }
         }
+
+        /// <summary>
+        /// Coordinates의 좌표로 LW폴리선을 만들어줍니다.
+        /// </summary>
+        /// <param name="Coordinates">Point3d 정점들의 좌표</param>
+        /// <param name="LayerName">폴리선에 적용될 레이어 이름</param>
+        /// <param name="AcadColor">폴리선에 적용될 색깔</param>
+        /// <param name="isClosed">닫힘, 열림 여부</param>
+        /// <returns>폴리선을 만들어 리턴하여 줍니다.</returns>
+        public static Polyline CreatePolyline(Point3dCollection Coordinates, string LayerName, AcColor.Color AcadColor = null, bool isClosed = false)
+        {
+            try
+            {
+                if (Coordinates.Count <= 0) throw new System.Exception("정점 갯수가 0입니다.");
+
+                Polyline oPoly = new Polyline();
+
+                for (int i = 0; i < Coordinates.Count; i++) oPoly.AddVertexAt(i, GeometryUtil.ToPoint2d(Coordinates[i]), 0, 0, 0);
+
+                oPoly.Closed = isClosed;
+                oPoly.LayerId = LayerUtil.AddLayer(LayerName);
+                if (AcadColor != null) oPoly.Color = AcadColor;
+
+                return oPoly;
+            }
+            catch (System.Exception ex)
+            {
+                System.Diagnostics.Debug.Print(string.Format("************에러발생************\n위치 : CreatePolyline\n메시지 : {0}", ex.Message));
+                return null;
+            }
+        }
     }
 }

@@ -42,6 +42,7 @@
       <HintPath>..\..\..\Program Files\Autodesk\AutoCAD 2016\acmgd.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="PresentationCore" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Windows.Forms" />
@@ -54,6 +55,8 @@
   <ItemGroup>
     <Compile Include="BlockUtil.cs" />
     <Compile Include="ColorUtil.cs" />
+    <Compile Include="DatabaseUtil.cs" />
+    <Compile Include="FileUtil.cs" />
     <Compile Include="XDataUtil.cs" />
     <Compile Include="GeometryUtil.cs" />
     <Compile Include="LayerUtil.cs" />
