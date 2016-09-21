@@ -24,9 +24,15 @@ namespace AutoCADLibrary
     /// </summary>
     public class PromptUtil
     {
-        public static readonly Point3d NullPoint3d = new Point3d(-65536.65536, -65536.65536, -65536.65536);
-
         private const string sRejectMsg = "잘못된 선택입니다.";
+
+        public static Point3d NullPoint3d
+        {
+            get
+            {
+                return new Point3d(-65536.65536, -65536.65536, -65536.65536);
+            }
+        }
 
         /// <summary>
         /// 사용자가 선택한 객체를 가져오는 메소드 입니다.
@@ -153,6 +159,53 @@ namespace AutoCADLibrary
         }
 
         /// <summary>
+        /// 사용자가 선택한 점을 가져오는 메소드입니다.
+        /// </summary>
+        /// <param name="message">선택 전, 프롬프트에 표시할 메시지</param>
+        /// <returns>사용자의 입력에 대한 결과</returns>
+        public static PromptPointResult GetPointResult(string message = "점 선택", bool useEnterKey = false)
+        {
+            ActivateApplication();
+
+            Document doc = AcadApp.DocumentManager.MdiActiveDocument;
+            Database db = doc.Database;
+            Editor ed = doc.Editor;
+
+            PromptPointOptions PrmptPntOpt = new PromptPointOptions("\n" + message);
+            PrmptPntOpt.AllowNone = useEnterKey;
+
+            PromptPointResult PrmptPntRst = ed.GetPoint(PrmptPntOpt);
+
+            return PrmptPntRst;
+        }
+
+        /// <summary>
+        /// 사용자가 선택한 점을 가져오는 메소드입니다. 점을 선택할 때, BasePoint를 기준으로 대쉬라인이 함께 나타납니다.
+        /// </summary>
+        /// <param name="message">선택 전, 프롬프트에 표시할 메시지</param>
+        /// <param name="BasePoint">기준점의 좌표</param>
+        /// <returns>사용자의 입력에 대한 결과</returns>
+        public static PromptPointResult GetPointResult(Point3d BasePoint, string message = "점 선택", bool useEnterKey = false)
+        {
+            ActivateApplication();
+
+            Document doc = AcadApp.DocumentManager.MdiActiveDocument;
+            Database db = doc.Database;
+            Editor ed = doc.Editor;
+
+            PromptPointOptions PrmptPntOpt = new PromptPointOptions("\n" + message);
+
+            PrmptPntOpt.AllowNone = useEnterKey;
+            PrmptPntOpt.UseBasePoint = true;
+            PrmptPntOpt.UseDashedLine = true;
+            PrmptPntOpt.BasePoint = BasePoint;
+
+            PromptPointResult PrmptPntRst = ed.GetPoint(PrmptPntOpt);
+
+            return PrmptPntRst;
+        }
+
+        /// <summary>
         /// 사용자로부터 문자열을 입력받습니다.
         /// </summary>
         /// <param name="message">입력 전, 프롬프트에 표시할 메시지</param>
@@ -185,6 +238,30 @@ namespace AutoCADLibrary
         public static void ActivateApplication()
         {
             SetActiveWindow(AcadApp.MainWindow.Handle.ToInt32());
+        }
+
+        /// <summary>
+        /// AutoCAD의 진행바를 정의하여 리턴합니다.
+        /// </summary>
+        /// <param name="message">진행바 진행 시, 어떤 메시지를 출력할지 나타냅니다.</param>
+        /// <param name="limit">진행바의 최대값을 설정합니다.</param>
+        /// <returns></returns>
+        public static ProgressMeter GetProgressBar(string message, int limit)
+        {
+            ProgressMeter oProgressMeter = new ProgressMeter();
+            oProgressMeter.Start(message);
+            oProgressMeter.SetLimit(limit);
+
+            return oProgressMeter;
+        }
+
+        /// <summary>
+        /// AutoCAD에 메세지를 출력합니다.
+        /// </summary>
+        /// <param name="message">출력할 메세지입니다.</param>
+        public static void PromptMessage(string message)
+        {
+            DatabaseUtil.GetEditor(DatabaseUtil.GetActiveDocument()).WriteMessage(message);
         }
     }
 }

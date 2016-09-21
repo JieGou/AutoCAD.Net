@@ -23,6 +23,28 @@ namespace AutoCADLibrary
     public class ColorUtil
     {
         /// <summary>
+        /// ByLayer에 대한 색깔 값을 리턴합니다.
+        /// </summary>
+        public static AcColor.Color ByLayer
+        {
+            get
+            {
+                return AcColor.Color.FromColorIndex(AcColor.ColorMethod.ByLayer, 256);
+            }
+        }
+
+        /// <summary>
+        /// ByBlock에 대한 색깔 값을 리턴합니다.
+        /// </summary>
+        public static AcColor.Color ByBlock
+        {
+            get
+            {
+                return AcColor.Color.FromColorIndex(AcColor.ColorMethod.ByBlock, 0);
+            }
+        }
+
+        /// <summary>
         /// 색깔을 선택하는 창을 띄워 사용자가 선택한 색을 가져옵니다.
         /// </summary>
         /// <param name="ShowByLayerByBlock">ByLayer, ByBlock에 대한 선택이 유효한지를 결정합니다.</param>

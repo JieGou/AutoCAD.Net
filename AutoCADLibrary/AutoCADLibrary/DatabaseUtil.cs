@@ -29,5 +29,20 @@ namespace AutoCADLibrary
         {
             return database.TransactionManager.StartTransaction();
         }
+
+        public static Document GetActiveDocument()
+        {
+            return Application.DocumentManager.MdiActiveDocument;
+        }
+
+        public static Database GetDatabase(Document document)
+        {
+            return document.Database;
+        }
+
+        public static Editor GetEditor(Document document)
+        {
+            return document.Editor;
+        }
     }
 }
