@@ -46,7 +46,7 @@ namespace AutoCADLibrary
         /// 객체의 최대(오른쪽위), 최소(왼쪽아래) 점을 가져옵니다.
         /// </summary>
         /// <param name="EntityId">점을 가져올 객체의 ObjectId 입니다.</param>
-        /// <returns></returns>
+        /// <returns>[0]:MinPoint, [1]:MaxPoint</returns>
         public static Point3dCollection GetMinMaxPoint(ObjectId EntityId)
         {
             Document doc = Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument;
@@ -75,5 +75,31 @@ namespace AutoCADLibrary
                 return null;
             }
         }
+
+        /// <summary>
+        /// point1과 point2가 tolerance 오차 내에서 같은지 반환합니다.
+        /// </summary>
+        /// <param name="point1">비교할 점1 입니다.</param>
+        /// <param name="point2">비교할 점2 입니다.</param>
+        /// <param name="tolerance">같다고 볼 오차범위 입니다.</param>
+        /// <returns></returns>
+        public static bool IsEqualPoint(Point3d point1, Point3d point2, double tolerance)
+        {
+            Tolerance oTol = new Tolerance(Tolerance.Global.EqualVector, tolerance);
+            return point1.IsEqualTo(point2, oTol);
+        }
+        /// <summary>
+        /// point1과 point2가 tolerance 오차 내에서 같은지 반환합니다.
+        /// </summary>
+        /// <param name="point1">비교할 점1 입니다.</param>
+        /// <param name="point2">비교할 점2 입니다.</param>
+        /// <param name="tolerance">같다고 볼 오차범위 입니다.</param>
+        /// <returns></returns>
+        public static bool IsEqualPoint(Point2d point1, Point2d point2, double tolerance)
+        {
+            Tolerance oTol = new Tolerance(Tolerance.Global.EqualVector, tolerance);
+            return point1.IsEqualTo(point2, oTol);
+        }
+
     }
 }

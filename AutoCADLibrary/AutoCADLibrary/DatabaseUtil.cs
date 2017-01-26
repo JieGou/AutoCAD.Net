@@ -35,11 +35,21 @@ namespace AutoCADLibrary
             return Application.DocumentManager.MdiActiveDocument;
         }
 
+        /// <summary>
+        /// 사용하지 않습니다.
+        /// </summary>
+        /// <param name="document">Datbase를 가져올 Document 입니다.</param>
+        /// <returns></returns>
         public static Database GetDatabase(Document document)
         {
             return document.Database;
         }
 
+        /// <summary>
+        /// 사용하지 않습니다.
+        /// </summary>
+        /// <param name="document">Editor를 가져올 Document 입니다.</param>
+        /// <returns></returns>
         public static Editor GetEditor(Document document)
         {
             return document.Editor;

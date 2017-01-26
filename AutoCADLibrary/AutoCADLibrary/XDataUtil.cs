@@ -22,13 +22,13 @@ namespace AutoCADLibrary
     /// </summary>
     public class XDataUtil
     {
-        public static void SetXRecord(ObjectId id, string key, ResultBuffer resbuf)
+        public static void SetXRecord(ObjectId id, string Key, ResultBuffer resbuf)
         {
             Document doc = AcadApp.DocumentManager.MdiActiveDocument;
             Database db = doc.Database;
             using (Transaction tr = db.TransactionManager.StartTransaction())
             {
-                Entity ent = tr.GetObject(id, OpenMode.ForRead) as Entity;
+                DBObject ent = tr.GetObject(id, OpenMode.ForRead);
                 if (ent != null)
                 {
                     ent.UpgradeOpen();
@@ -36,14 +36,14 @@ namespace AutoCADLibrary
                     DBDictionary xDict = (DBDictionary)tr.GetObject(ent.ExtensionDictionary, OpenMode.ForWrite);
                     Xrecord xRec = new Xrecord();
                     xRec.Data = resbuf;
-                    xDict.SetAt(key, xRec);
+                    xDict.SetAt(Key, xRec);
                     tr.AddNewlyCreatedDBObject(xRec, true);
                 }
                 tr.Commit();
             }
         }
 
-        public static ResultBuffer GetXRecord(ObjectId id, string key)
+        public static ResultBuffer GetXRecord(ObjectId id, string Key)
         {
             Document doc = AcadApp.DocumentManager.MdiActiveDocument;
             Database db = doc.Database;
@@ -51,13 +51,13 @@ namespace AutoCADLibrary
             using (Transaction tr = db.TransactionManager.StartTransaction())
             {
                 Xrecord xRec = new Xrecord();
-                Entity ent = tr.GetObject(id, OpenMode.ForRead, false) as Entity;
+                DBObject ent = tr.GetObject(id, OpenMode.ForRead, false);
                 if (ent != null)
                 {
                     try
                     {
                         DBDictionary xDict = (DBDictionary)tr.GetObject(ent.ExtensionDictionary, OpenMode.ForRead, false);
-                        xRec = (Xrecord)tr.GetObject(xDict.GetAt(key), OpenMode.ForRead, false);
+                        xRec = (Xrecord)tr.GetObject(xDict.GetAt(Key), OpenMode.ForRead, false);
                         return xRec.Data;
                     }
                     catch
@@ -70,22 +70,97 @@ namespace AutoCADLibrary
             }
         }
 
-        //private static string ApplicationName = "KevinSungApplication";
+        private static void AddRegAppTableRecord(string applicationName)
+        {
+            Document doc = AcadApp.DocumentManager.MdiActiveDocument;
+            Database db = doc.Database;
+            Editor ed = doc.Editor;
 
-        //public static void AddXData(Entity entity, string applicatioinName, ResultBuffer data)
-        //{
-        //    Document doc = AcadApp.DocumentManager.MdiActiveDocument;
-        //    Database db = doc.Database;
-        //    Editor ed = doc.Editor;
+            using (doc.LockDocument())
+            {
+                using (Transaction tr = DatabaseUtil.GetTransaction(db))
+                {
+                    RegAppTable rat = tr.GetObject(db.RegAppTableId, OpenMode.ForRead, false) as RegAppTable;
 
-        //    using (doc.LockDocument())
-        //    {
-        //        using (Transaction tr = DatabaseUtil.GetTransaction(db))
-        //        {
+                    if (!rat.Has(applicationName))
+                    {
+                        rat.UpgradeOpen();
+                        RegAppTableRecord ratr = new RegAppTableRecord();
+                        ratr.Name = applicationName;
+                        rat.Add(ratr);
+                        tr.AddNewlyCreatedDBObject(ratr, true);
+                    }
 
-        //        }
-        //    }
-        //}
+                    tr.Commit();
+                }
+            }
+        }
+
+        public static void SetXData(ObjectId id, ResultBuffer data)
+        {
+            Document doc = AcadApp.DocumentManager.MdiActiveDocument;
+            Database db = doc.Database;
+            Editor ed = doc.Editor;
+
+            using (doc.LockDocument())
+            {
+                using (Transaction tr = DatabaseUtil.GetTransaction(db))
+                {
+                    DBObject ent = tr.GetObject(id, OpenMode.ForWrite);
+
+                    #region Create RegAppTableRecord
+                    TypedValue[] arrTypedValue = data.AsArray();
+                    for (int i = 0; i < arrTypedValue.Length; i++)
+                    {
+                        TypedValue oTV = arrTypedValue[i];
+
+                        if (oTV.TypeCode == (int)DxfCode.ExtendedDataRegAppName)
+                        {
+                            AddRegAppTableRecord(oTV.Value.ToString());
+                        }
+                    }
+                    #endregion
+
+                    ent.XData = data;
+
+                    tr.Commit();
+                }
+            }
+        }
+
+        public static ResultBuffer GetXDataForApplication(ObjectId id, string applicationName)
+        {
+            Document doc = AcadApp.DocumentManager.MdiActiveDocument;
+            Database db = doc.Database;
+            Editor ed = doc.Editor;
+
+            using (doc.LockDocument())
+            {
+                using (Transaction tr = DatabaseUtil.GetTransaction(db))
+                {
+                    DBObject ent = tr.GetObject(id, OpenMode.ForWrite);
+
+                    return ent.GetXDataForApplication(applicationName);
+                }
+            }
+        }
+
+        public static ResultBuffer GetXData(ObjectId id)
+        {
+            Document doc = AcadApp.DocumentManager.MdiActiveDocument;
+            Database db = doc.Database;
+            Editor ed = doc.Editor;
+
+            using (doc.LockDocument())
+            {
+                using (Transaction tr = DatabaseUtil.GetTransaction(db))
+                {
+                    DBObject ent = tr.GetObject(id, OpenMode.ForWrite);
+
+                    return ent.XData;
+                }
+            }
+        }
 
         //[CommandMethod("test1")]
         //public void test()

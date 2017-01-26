@@ -60,6 +60,27 @@ namespace AutoCADLibrary
         }
 
         /// <summary>
+        /// 사용자가 선택한 객체를 가져오는 메소드 입니다.
+        /// </summary>
+        /// <param name="message">선택 전, 프롬프트에 표시할 메시지</param>
+        /// <param name="Filter">선택이 가능하게 할 객체의 종류(클래스)</param>
+        /// <returns>객체를 선택했을 때, PromptEntityResult를 리턴합니다.</returns>
+        public static PromptEntityResult GetEntityResult(string message = "객체 선택", params Type[] Filter)
+        {
+            ActivateApplication();
+
+            Document doc = AcadApp.DocumentManager.MdiActiveDocument;
+            Database db = doc.Database;
+            Editor ed = doc.Editor;
+
+            PromptEntityOptions peo = new PromptEntityOptions("\n" + message);
+            peo.SetRejectMessage("\n" + sRejectMsg);
+            foreach (Type tType in Filter) peo.AddAllowedClass(tType, true);
+
+            return ed.GetEntity(peo);
+        }
+
+        /// <summary>
         /// pt1과 pt2를 기준으로 사각형 내의 객체를 가져오는 메소드입니다.
         /// </summary>
         /// <param name="pt1">첫번째점</param>
@@ -104,6 +125,30 @@ namespace AutoCADLibrary
             SelectionFilter oSF = new SelectionFilter(Filter);
 
             PromptSelectionResult psr = ed.GetSelection(pso, oSF);
+
+            if (psr.Status != PromptStatus.OK) return new ObjectId[] { };
+
+            return psr.Value.GetObjectIds();
+        }
+
+        /// <summary>
+        /// 화면상의 모든 객체들을 가져오는 메소드입니다.
+        /// </summary>
+        /// <param name="Filter">선택이 가능하게 할 조건</param>
+        /// <returns></returns>
+        public static ObjectId[] GetAllEntities(params TypedValue[] Filter)
+        {
+            ActivateApplication();
+
+            Document doc = AcadApp.DocumentManager.MdiActiveDocument;
+            Database db = doc.Database;
+            Editor ed = doc.Editor;
+
+            PromptSelectionOptions pso = new PromptSelectionOptions();
+
+            SelectionFilter oSF = new SelectionFilter(Filter);
+
+            PromptSelectionResult psr = ed.SelectAll(oSF);
 
             if (psr.Status != PromptStatus.OK) return new ObjectId[] { };
 
@@ -209,6 +254,8 @@ namespace AutoCADLibrary
         /// 사용자로부터 문자열을 입력받습니다.
         /// </summary>
         /// <param name="message">입력 전, 프롬프트에 표시할 메시지</param>
+        /// <param name="allowSpace">공백을 포함할 여부입니다.</param>
+        /// <param name="defaultString">기본 지정 문자열입니다.</param>
         /// <returns></returns>
         public static string GetString(string message = "입력", bool allowSpace = false, string defaultString = "")
         {
@@ -227,6 +274,29 @@ namespace AutoCADLibrary
             if (PrmptRst.Status != PromptStatus.OK) return "";
 
             return PrmptRst.StringResult;
+        }
+
+        /// <summary>
+        /// 사용자로부터 구역을 선택받습니다.
+        /// </summary>
+        /// <param name="BasePoint">기준점 입니다.</param>
+        /// <param name="message">입력 전, 프롬프트에 표시할 메시지 입니다.</param>
+        /// <returns></returns>
+        public static Point3d GetCorner(Point3d BasePoint, string message = "구역 선택")
+        {
+            ActivateApplication();
+
+            Document doc = AcadApp.DocumentManager.MdiActiveDocument;
+            Database db = doc.Database;
+            Editor ed = doc.Editor;
+
+            PromptCornerOptions pco = new PromptCornerOptions("\n" + message, BasePoint);
+
+            PromptPointResult ppr = ed.GetCorner(pco);
+
+            if (ppr.Status == PromptStatus.OK) return ppr.Value;
+
+            return NullPoint3d;
         }
 
         [DllImport("user32.dll")]

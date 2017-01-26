@@ -80,5 +80,93 @@ namespace AutoCADLibrary
                 return null;
             }
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="curve"></param>
+        /// <returns></returns>
+        public static Polyline ToPolyline(Curve curve)
+        {
+            if (curve is Polyline3d)
+            {
+                return Polyline3dToPolyline(curve as Polyline3d);
+            }
+
+            if (curve is Polyline2d)
+            {
+                return Polyline2dToPolyline(curve as Polyline2d);
+            }
+
+            return null;
+        }
+
+        private static Polyline Polyline3dToPolyline(Polyline3d polyline3d)
+        {
+
+                Document doc = DatabaseUtil.GetActiveDocument();
+                Database db = doc.Database;
+                Polyline oPoly = null;
+
+                try
+                {
+                    using (doc.LockDocument())
+                    {
+                        using (Transaction tr = DatabaseUtil.GetTransaction(db))
+                        {
+                            oPoly = new Polyline();
+                            ObjectId[] idVtcies = polyline3d.Cast<ObjectId>().ToArray();
+
+                            for (int i = 0; i < idVtcies.Length; i++)
+                            {
+                                PolylineVertex3d oVtx = tr.GetObject(idVtcies[i], OpenMode.ForWrite) as PolylineVertex3d;
+                                oPoly.AddVertexAt(i, GeometryUtil.ToPoint2d(oVtx.Position), 0, 0, 0);
+                            }
+
+                            oPoly.Layer = polyline3d.Layer;
+                            oPoly.Color = polyline3d.Color;
+                        }
+                    }
+
+                    return oPoly;
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+
+        private static Polyline Polyline2dToPolyline(Polyline2d polyline2d)
+        {
+            Document doc = DatabaseUtil.GetActiveDocument();
+            Database db = doc.Database;
+            Polyline oPoly = null;
+
+            try
+            {
+                using (doc.LockDocument())
+                {
+                    using (Transaction tr = DatabaseUtil.GetTransaction(db))
+                    {
+                        oPoly = new Polyline();
+                        Vertex2d[] oVtcies = polyline2d.Cast<Vertex2d>().ToArray();
+
+                        for (int i = 0; i < oVtcies.Length; i++)
+                        {
+                            oPoly.AddVertexAt(i, GeometryUtil.ToPoint2d(oVtcies[i].Position), 0, 0, 0);
+                        }
+
+                        oPoly.Layer = polyline2d.Layer;
+                        oPoly.Color = polyline2d.Color;
+                    }
+                }
+
+                return oPoly;
+            }
+            catch
+            {
+                return null;
+            }
+        }
     }
 }

@@ -169,5 +169,38 @@ namespace AutoCADLibrary
 
             return oLayerId;
         }
+
+        /// <summary>
+        /// database가 가지고있는 레이어를 가지고 옵니다.
+        /// </summary>
+        /// <param name="database">레이어 목록을 가져올 database입니다.</param>
+        /// <returns></returns>
+        public static List<string> GetLayerList(Database database)
+        {
+            List<string> lstLayerName = new List<string>();
+
+            try
+            {
+                using (DatabaseUtil.GetActiveDocument().LockDocument())
+                {
+                    using (Transaction tr = DatabaseUtil.GetTransaction(database))
+                    {
+                        LayerTable oLayerIds = tr.GetObject(database.LayerTableId, OpenMode.ForWrite) as LayerTable;
+
+                        foreach (ObjectId idLayer in oLayerIds)
+                        {
+                            LayerTableRecord oLayer = tr.GetObject(idLayer, OpenMode.ForWrite) as LayerTableRecord;
+                            lstLayerName.Add(oLayer.Name);
+                        }
+                    }
+                }
+
+                return lstLayerName;
+            }
+            catch
+            {
+                return null;
+            }
+        }
     }
 }
